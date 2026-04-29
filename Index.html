@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Respiratory System — Study Command Center</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2236;
+    --border: #1e3a5f;
+    --accent: #00d4ff;
+    --accent2: #4ade80;
+    --accent3: #f97316;
+    --accent4: #a78bfa;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, #0a0e1a 0%, #0d1b3e 50%, #0a0e1a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.1rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .logo span { color: var(--text); }
+
+  .timer-badge {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 8px 20px;
+  }
+
+  .timer-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .timer-display {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.2rem;
+    color: var(--accent);
+    min-width: 60px;
+  }
+
+  .timer-btn {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 50px;
+    padding: 4px 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* ── NAV ── */
+  .nav {
+    display: flex;
+    gap: 4px;
+    padding: 16px 40px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+
+  .nav-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--muted);
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+
+  .nav-btn:hover { color: var(--text); border-color: var(--border); }
+  .nav-btn.active { background: var(--accent); color: var(--bg); font-weight: 700; border-color: var(--accent); }
+
+  /* ── MAIN ── */
+  .main { padding: 32px 40px; max-width: 1200px; margin: 0 auto; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* ── SECTION HEADER ── */
+  .section-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.5rem;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .section-sub { color: var(--muted); margin-bottom: 28px; font-size: 0.9rem; }
+
+  /* ── STUDY CARDS (notes view) ── */
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+
+  .study-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .study-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+  .card-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 3px 10px;
+    border-radius: 50px;
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+
+  .tag-blue { background: rgba(0,212,255,0.15); color: var(--accent); }
+  .tag-green { background: rgba(74,222,128,0.15); color: var(--accent2); }
+  .tag-orange { background: rgba(249,115,22,0.15); color: var(--accent3); }
+  .tag-purple { background: rgba(167,139,250,0.15); color: var(--accent4); }
+  .tag-red { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+  .card-title { font-size: 1rem; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+  .card-body { font-size: 0.875rem; color: var(--muted); line-height: 1.6; }
+  .card-body strong { color: var(--text); }
+
+  /* ── FLASHCARDS ── */
+  .flashcard-container { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+
+  .progress-bar-container {
+    width: 100%;
+    max-width: 600px;
+    background: var(--surface2);
+    border-radius: 50px;
+    height: 8px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 50px;
+    transition: width 0.4s ease;
+  }
+
+  .card-count { font-size: 0.875rem; color: var(--muted); }
+
+  .flashcard {
+    width: 100%;
+    max-width: 600px;
+    height: 280px;
+    perspective: 1000px;
+    cursor: pointer;
+  }
+
+  .flashcard-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+
+  .flashcard-front, .flashcard-back {
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    padding: 32px;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  .flashcard-front {
+    background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+    border: 1px solid var(--accent);
+  }
+
+  .flashcard-back {
+    background: linear-gradient(135deg, #0d2d1a 0%, #0f2a35 100%);
+    border: 1px solid var(--accent2);
+    transform: rotateY(180deg);
+  }
+
+  .fc-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-bottom: 16px; }
+  .fc-question { font-size: 1.15rem; font-weight: 600; line-height: 1.5; color: var(--text); }
+  .fc-answer { font-size: 1rem; line-height: 1.7; color: var(--accent2); font-weight: 500; }
+  .fc-hint { font-size: 0.8rem; color: var(--muted); margin-top: 8px; }
+
+  .fc-tap { font-size: 0.75rem; color: var(--muted); margin-top: 24px; }
+
+  .fc-controls { display: flex; gap: 12px; }
+
+  .fc-btn {
+    padding: 12px 28px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .fc-btn.prev { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+  .fc-btn.prev:hover { color: var(--text); border-color: var(--text); }
+  .fc-btn.next { background: var(--accent); color: var(--bg); }
+  .fc-btn.next:hover { opacity: 0.85; }
+  .fc-btn.shuffle { background: var(--accent4); color: white; }
+
+  /* ── DRAG LABEL ── */
+  .diagram-section { display: flex; flex-direction: column; gap: 24px; }
+  .diagram-tabs { display: flex; gap: 8px; }
+  .diag-tab { padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; transition: all 0.2s; }
+  .diag-tab.active { background: var(--accent4); color: white; border-color: var(--accent4); }
+
+  .diagram-wrapper { display: none; }
+  .diagram-wrapper.active { display: flex; flex-direction: column; gap: 20px; }
+
+  .term-bank {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    min-height: 60px;
+  }
+
+  .term-chip {
+    padding: 6px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    font-size: 0.8rem;
+    cursor: grab;
+    user-select: none;
+    transition: all 0.2s;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .term-chip:hover { border-color: var(--accent4); color: var(--accent4); transform: scale(1.05); }
+  .term-chip.dragging { opacity: 0.5; cursor: grabbing; }
+  .term-chip.used { opacity: 0.3; pointer-events: none; }
+
+  .diagram-labels {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .label-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .label-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+    min-width: 24px;
+  }
+
+  .label-drop-zone {
+    min-width: 180px;
+    height: 38px;
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    font-size: 0.875rem;
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+
+  .label-drop-zone.drag-over { border-color: var(--accent4); background: rgba(167,139,250,0.1); }
+  .label-drop-zone.correct { border-color: var(--accent2); background: rgba(74,222,128,0.1); color: var(--accent2); font-weight: 600; border-style: solid; }
+  .label-drop-zone.incorrect { border-color: var(--danger); background: rgba(239,68,68,0.1); color: var(--danger); border-style: solid; }
+  .label-drop-zone.filled { border-style: solid; border-color: var(--accent4); color: var(--accent4); }
+
+  .label-hint { font-size: 0.8rem; color: var(--muted); }
+
+  .diagram-actions { display: flex; gap: 10px; margin-top: 8px; }
+
+  .btn {
+    padding: 10px 22px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-primary { background: var(--accent); color: var(--bg); }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-success { background: var(--accent2); color: var(--bg); }
+  .btn-danger { background: var(--danger); color: white; }
+
+  /* ── QUIZ ── */
+  .quiz-container { max-width: 680px; }
+
+  .quiz-question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 16px;
+  }
+
+  .q-number { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  .q-text { font-size: 1.05rem; font-weight: 600; line-height: 1.6; margin-bottom: 20px; }
+  
+  .q-options { display: flex; flex-direction: column; gap: 10px; }
+
+  .q-option {
+    padding: 12px 18px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    text-align: left;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+  }
+
+  .q-option:hover:not(.disabled) { border-color: var(--accent); color: var(--accent); }
+  .q-option.correct { border-color: var(--accent2); background: rgba(74,222,128,0.12); color: var(--accent2); }
+  .q-option.incorrect { border-color: var(--danger); background: rgba(239,68,68,0.12); color: var(--danger); }
+  .q-option.disabled { cursor: default; }
+
+  .q-feedback {
+    padding: 14px;
+    border-radius: 10px;
+    margin-top: 12px;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    display: none;
+  }
+
+  .q-feedback.correct-fb { background: rgba(74,222,128,0.1); border: 1px solid var(--accent2); color: var(--accent2); }
+  .q-feedback.incorrect-fb { background: rgba(239,68,68,0.1); border: 1px solid var(--danger); color: #fca5a5; }
+
+  .quiz-score {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    text-align: center;
+    display: none;
+  }
+
+  .score-number {
+    font-family: 'Space Mono', monospace;
+    font-size: 3rem;
+    font-weight: 700;
+    margin: 16px 0;
+  }
+
+  .score-excellent { color: var(--accent2); }
+  .score-good { color: var(--accent); }
+  .score-needs-work { color: var(--accent3); }
+  .score-fail { color: var(--danger); }
+
+  .quiz-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
+
+  /* ── STUDY PLAN ── */
+  .plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+
+  .plan-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .plan-card h3 { font-size: 0.9rem; color: var(--accent); margin-bottom: 12px; font-family: 'Space Mono', monospace; }
+
+  .plan-item {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--surface2);
+    font-size: 0.85rem;
+    align-items: flex-start;
+  }
+
+  .plan-item:last-child { border-bottom: none; }
+
+  .plan-check {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .plan-check.checked { background: var(--accent2); border-color: var(--accent2); }
+  .plan-check.checked::after { content: '✓'; color: var(--bg); font-size: 12px; font-weight: 700; }
+
+  .alert-box {
+    background: rgba(249,115,22,0.1);
+    border: 1px solid var(--accent3);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+  }
+
+  .alert-box h3 { color: var(--accent3); font-size: 0.9rem; margin-bottom: 8px; }
+  .alert-box p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── DISORDERS TABLE ── */
+  .disorder-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+  .disorder-table th {
+    background: var(--surface2);
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .disorder-table td {
+    padding: 12px 16px;
+    font-size: 0.875rem;
+    border-bottom: 1px solid var(--surface2);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .disorder-table tr:hover td { background: var(--surface2); }
+  .disorder-name { font-weight: 700; color: var(--accent4); }
+  .disorder-type { font-size: 0.7rem; color: var(--muted); font-weight: 400; display: block; }
+
+  /* ── MOBILE ── */
+  @media (max-width: 700px) {
+    .header { padding: 12px 16px; }
+    .nav { padding: 10px 16px; }
+    .main { padding: 20px 16px; }
+    .plan-grid { grid-template-columns: 1fr; }
+    .timer-badge { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">RESP.<span>SYS</span> — Study Hub</div>
+  <div class="timer-badge">
+    <span class="timer-label">Study Timer</span>
+    <span class="timer-display" id="timerDisplay">30:00</span>
+    <button class="timer-btn" onclick="toggleTimer()" id="timerBtn">START</button>
+    <button class="timer-btn" style="background:var(--surface2);color:var(--muted);" onclick="resetTimer()">RST</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <button class="nav-btn active" onclick="showSection('study')">📖 Study Notes</button>
+  <button class="nav-btn" onclick="showSection('flashcards')">🃏 Flashcards</button>
+  <button class="nav-btn" onclick="showSection('diagrams')">🫁 Label Diagrams</button>
+  <button class="nav-btn" onclick="showSection('quiz')">📝 Practice Quiz</button>
+  <button class="nav-btn" onclick="showSection('disorders')">⚕️ Disorders Table</button>
+  <button class="nav-btn" onclick="showSection('plan')">🎯 Study Plan</button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ═══ STUDY NOTES ═══ -->
+  <div class="section active" id="study">
+    <div class="section-title">// Study Notes</div>
+    <div class="section-sub">Complete content from your course materials — organized for fast review</div>
+
+    <div class="cards-grid">
+
+      <div class="study-card">
+        <span class="card-tag tag-blue">Types of Respiration</span>
+        <div class="card-title">4 Types You Must Know</div>
+        <div class="card-body">
+          <strong>Ventilation (Breathing):</strong> Movement of gases between external environment and respiratory membrane (lung in humans).<br><br>
+          <strong>External Respiration:</strong> Gas exchange between atmosphere and blood — at the ALVEOLI.<br><br>
+          <strong>Internal Respiration:</strong> Gas exchange between blood and body cells. O₂ in, CO₂ out.<br><br>
+          <strong>Cellular Respiration:</strong> In mitochondria. O₂ + Nutrients → Energy + CO₂ + H₂O
+        </div>
+      </div>
+
+      <div class="study-card">
+        <span class="card-tag tag-green">Key Structures</span>
+        <div class="card-title">Path Air Takes (in order)</div>
+        <div class="card-body">
+          <strong>Nasal Cavity</strong> → filters, warms, moistens air<br>
+          <strong>Pharynx</strong> → throat, joins nasal + oral cavities<br>
+          <strong>Epiglottis</strong> → flap preventing food entering trachea<br>
+          <strong>Larynx</strong> → voice box, vocal cords<br>
+          <strong>Trachea</strong> → windpipe, cartilage rings<br>
+          <strong>Bronchi</strong> → left & right, enter lungs<br>
+          <strong>Bronchioles</strong> → smaller branches, smooth muscle<br>
+          <strong>Alveoli</strong> → gas exchange! Tiny sacs, 1 cell thick
+        </div>
+      </div>
+
+      <div class="study-card">
+        <span class="card-tag tag-orange">Breathing Mechanism</span>
+        <div class="card-title">How We Breathe</div>
+        <div class="card-body">
+          <strong>INHALATION:</strong><br>
+          Diaphragm contracts → flattens ↓<br>
+          Intercostals contract → ribs UP & OUT<br>
+          Volume ↑ → Pressure ↓ → Air flows IN<br><br>
+          <strong>EXHALATION:</strong><br>
+          Diaphragm relaxes → domes ↑<br>
+          Intercostals relax → ribs DOWN & IN<br>
+          Volume ↓ → Pressure ↑ → Air flows OUT
+        </div>
+      </div>
+
+      <div class="study-card">
+        <span class="card-tag tag-blue">Gas Exchange</span>
+        <div class="card-title">O₂ Into Cells</div>
+        <div class="card-body">
+          1. Air (20% O₂) arrives at alveoli<br>
+          2. O₂ concentration: lungs > blood → O₂ diffuses into blood<br>
+          3. Most O₂ binds to <strong>hemoglobin</strong> in red blood cells<br>
+          4. Blood carries O₂ to body cells<br>
+          5. Cells use O₂ constantly → cell O₂ always lower than blood<br>
+          6. O₂ diffuses from blood → into cells<br>
+          <strong>Blood is now deoxygenated (purplish-red)</strong>
+        </div>
+      </div>
+
+      <div class="study-card">
+        <span class="card-tag tag-blue">Gas Exchange</span>
+        <div class="card-title">CO₂ Out of Cells</div>
+        <div class="card-body">
+          1. Cells produce CO₂ → concentration in cells > blood<br>
+          2. CO₂ diffuses into blood<br>
+          3. Most CO₂ → reacts with H₂O in RBCs: CO₂ + H₂O → H⁺ + HCO₃⁻<br>
+          4. Bicarbonate ions travel in plasma to lungs<br>
+          5. At lungs: reaction reverses → CO₂ reforms<br>
+          6. CO₂ conc in blood > alveolar air → CO₂ diffuses OUT
+        </div>
+      </div>
+
+      <div class="study-card">
+        <span class="card-tag tag-purple">Alveoli Facts</span>
+        <div class="card-title">Why Alveoli Are Perfect for Gas Exchange</div>
+        <div class="card-body">
+          ✦ <strong>150 million</strong> alveoli per lung<br>
+          ✦ Surface area = <strong>40× your skin!</strong><br>
+          ✦ Walls only <strong>1 cell thick</strong> → rapid diffusion<br>
+          ✦ Surrounded by dense <strong>capillary network</strong><br>
+          ✦ <strong>Moist walls</strong> allow gases to dissolve<br>
+          ✦ Diameter: only 0.1–0.2 mm<br>
+          ✦ Site of EXTERNAL respiration
+        </div>
+      </div>
+
+      <div class="study-card">
+        <span class="card-tag tag-green">Other Organisms</span>
+        <div class="card-title">Gas Exchange Across Species</div>
+        <div class="card-body">
+          <strong>Worms:</strong> Skin (cutaneous) — must stay moist<br>
+          <strong>Insects:</strong> Spiracles + tracheae — NO lungs<br>
+          <strong>Fish:</strong> Gills — water flows over filaments (countercurrent exchange)<br>
+          <strong>Frogs:</strong> Lungs + moist skin; tadpoles use gills<br>
+          <strong>Humans:</strong> Lungs with alveoli
+        </div>
+      </div>
+
+      <div class="study-card">
+        <span class="card-tag tag-red">★ ASTHMA — Focus</span>
+        <div class="card-title">Asthma — Know This Cold</div>
+        <div class="card-body">
+          <strong>Definition:</strong> Chronic inflammatory disorder — bronchioles constrict + excess mucus<br><br>
+          <strong>Symptoms:</strong> Wheezing, shortness of breath, chest tightness, nighttime cough<br><br>
+          <strong>Triggers:</strong> Allergens, exercise, cold air, smoke, stress<br><br>
+          <strong>Mechanism:</strong> Bronchiole smooth muscle spasms → airway narrows → mucus builds up → trapped air<br><br>
+          <strong>Treatment:</strong> Reliever inhaler (bronchodilator/Ventolin); preventer inhaler (corticosteroids); avoid triggers
+        </div>
+      </div>
+
+      <div class="study-card">
+        <span class="card-tag tag-red">★ LARYNGITIS — Focus</span>
+        <div class="card-title">Laryngitis — Know This Cold</div>
+        <div class="card-body">
+          <strong>Definition:</strong> Inflammation of the larynx (voice box) → vocal cords swell<br><br>
+          <strong>Symptoms:</strong> Loss of voice / severe hoarseness, sore dry throat, irritating cough, fever<br><br>
+          <strong>Causes:</strong> Viral infection (most common), bacterial, overstraining voice, acid reflux, smoke<br><br>
+          <strong>Treatment:</strong> REST voice completely (no whispering!), stay hydrated, steam inhalation, antibiotics only if bacterial — resolves in 1–2 weeks
+        </div>
+      </div>
+
+      <div class="study-card">
+        <span class="card-tag tag-purple">Structures</span>
+        <div class="card-title">Trachea & Bronchiole Escalator</div>
+        <div class="card-body">
+          <strong>Trachea (Windpipe):</strong> Cartilage rings outside; ciliated mucus cells inside<br><br>
+          <strong>Goblet Cells:</strong> Produce mucus; line trachea, bronchi, bronchioles<br><br>
+          <strong>Bronchiole Escalator:</strong> Mucus traps dust/bacteria/pollen. Tiny cilia constantly sweep this material UP and OUT of the lungs — your natural air filter!<br><br>
+          Smoking destroys cilia → debris accumulates → infections
+        </div>
+      </div>
+
+      <div class="study-card">
+        <span class="card-tag tag-orange">Pleural Membrane</span>
+        <div class="card-title">Pleura & Diaphragm</div>
+        <div class="card-body">
+          <strong>Pleural Membrane:</strong> Thin fluid-filled membrane surrounding each lung, continuous with chest cavity lining<br>
+          Function: Reduces friction between lungs and chest wall during breathing<br><br>
+          <strong>Diaphragm:</strong> Dome-shaped muscle separating chest from abdominal cavity<br>
+          The MAIN breathing muscle — contracts = inhale, relaxes = exhale<br><br>
+          <strong>External Intercostals:</strong> Pull ribs UP & OUT (inhale)<br>
+          <strong>Internal Intercostals:</strong> Pull ribs DOWN during extreme exercise
+        </div>
+      </div>
+
+      <div class="study-card">
+        <span class="card-tag tag-green">Emphysema</span>
+        <div class="card-title">Emphysema</div>
+        <div class="card-body">
+          <strong>Definition:</strong> Alveoli walls break down → enlarged, less elastic air sacs<br><br>
+          <strong>Symptoms:</strong> Shortness of breath (especially during activity), barrel chest, chronic cough, reduced exercise tolerance<br><br>
+          <strong>Cause:</strong> Primary cause is <strong>SMOKING</strong> (chemicals destroy alveolar walls)<br><br>
+          <strong>Effect:</strong> Less surface area for gas exchange → body can't get enough O₂<br><br>
+          <strong>Treatment:</strong> Incurable — quit smoking, bronchodilators, oxygen therapy
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ FLASHCARDS ═══ -->
+  <div class="section" id="flashcards">
+    <div class="section-title">// Flashcards</div>
+    <div class="section-sub">Click the card to flip. Master all 30 cards before your test!</div>
+
+    <div class="flashcard-container">
+      <div style="width:100%;max-width:600px;display:flex;justify-content:space-between;align-items:center;">
+        <span class="card-count" id="fcCount">Card 1 of 30</span>
+        <button class="fc-btn shuffle" onclick="shuffleCards()" style="padding:8px 16px;font-size:0.8rem;">🔀 Shuffle</button>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-fill" id="fcProgress" style="width:3.3%"></div>
+      </div>
+
+      <div class="flashcard" id="flashcard" onclick="flipCard()">
+        <div class="flashcard-inner" id="flashcardInner">
+          <div class="flashcard-front">
+            <div class="fc-label">Question</div>
+            <div class="fc-question" id="fcQuestion">Loading...</div>
+            <div class="fc-tap">👆 Tap to reveal answer</div>
+          </div>
+          <div class="flashcard-back">
+            <div class="fc-label">Answer</div>
+            <div class="fc-answer" id="fcAnswer">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fc-controls">
+        <button class="fc-btn prev" onclick="prevCard()">← Prev</button>
+        <button class="fc-btn next" onclick="nextCard()">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DIAGRAMS ═══ -->
+  <div class="section" id="diagrams">
+    <div class="section-title">// Label the Diagrams</div>
+    <div class="section-sub">Drag or click a term from the bank, then click the blank to place it. Check your answers when done!</div>
+
+    <div class="diagram-section">
+      <div class="diagram-tabs">
+        <button class="diag-tab active" onclick="showDiagram('resp')">Respiratory System</button>
+        <button class="diag-tab" onclick="showDiagram('breath')">Breathing Mechanism</button>
+        <button class="diag-tab" onclick="showDiagram('gas')">Gas Exchange</button>
+      </div>
+
+      <!-- RESPIRATORY DIAGRAM -->
+      <div class="diagram-wrapper active" id="diag-resp">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;">
+          <div style="font-size:0.875rem;color:var(--muted);margin-bottom:12px;">Click a term from the bank below, then click a blank box to fill it in:</div>
+          <div class="term-bank" id="bank-resp">
+            <div class="term-chip" onclick="selectTerm(this,'resp')">Nasal Cavity</div>
+            <div class="term-chip" onclick="selectTerm(this,'resp')">Pharynx</div>
+            <div class="term-chip" onclick="selectTerm(this,'resp')">Epiglottis</div>
+            <div class="term-chip" onclick="selectTerm(this,'resp')">Larynx</div>
+            <div class="term-chip" onclick="selectTerm(this,'resp')">Trachea</div>
+            <div class="term-chip" onclick="selectTerm(this,'resp')">Bronchi</div>
+            <div class="term-chip" onclick="selectTerm(this,'resp')">Bronchioles</div>
+            <div class="term-chip" onclick="selectTerm(this,'resp')">Alveoli</div>
+            <div class="term-chip" onclick="selectTerm(this,'resp')">Pleural Membrane</div>
+            <div class="term-chip" onclick="selectTerm(this,'resp')">Diaphragm</div>
+          </div>
+        </div>
+        <div class="diagram-labels" id="labels-resp">
+          <div class="label-row"><span class="label-num">1.</span><div class="label-drop-zone" onclick="fillZone(this,'resp')" data-answer="Nasal Cavity">Drop / click to fill</div><span class="label-hint">— Air-filled skull structure; filters & warms air</span></div>
+          <div class="label-row"><span class="label-num">2.</span><div class="label-drop-zone" onclick="fillZone(this,'resp')" data-answer="Pharynx">Drop / click to fill</div><span class="label-hint">— Back of mouth; joins nasal & oral cavities</span></div>
+          <div class="label-row"><span class="label-num">3.</span><div class="label-drop-zone" onclick="fillZone(this,'resp')" data-answer="Epiglottis">Drop / click to fill</div><span class="label-hint">— Prevents food entering windpipe</span></div>
+          <div class="label-row"><span class="label-num">4.</span><div class="label-drop-zone" onclick="fillZone(this,'resp')" data-answer="Larynx">Drop / click to fill</div><span class="label-hint">— Voice box; contains vocal cords</span></div>
+          <div class="label-row"><span class="label-num">5.</span><div class="label-drop-zone" onclick="fillZone(this,'resp')" data-answer="Trachea">Drop / click to fill</div><span class="label-hint">— Windpipe; cartilage rings; ciliated</span></div>
+          <div class="label-row"><span class="label-num">6.</span><div class="label-drop-zone" onclick="fillZone(this,'resp')" data-answer="Bronchi">Drop / click to fill</div><span class="label-hint">— Left & right branches entering lungs</span></div>
+          <div class="label-row"><span class="label-num">7.</span><div class="label-drop-zone" onclick="fillZone(this,'resp')" data-answer="Bronchioles">Drop / click to fill</div><span class="label-hint">— Smaller branches; smooth muscle walls</span></div>
+          <div class="label-row"><span class="label-num">8.</span><div class="label-drop-zone" onclick="fillZone(this,'resp')" data-answer="Alveoli">Drop / click to fill</div><span class="label-hint">— Tiny sacs; site of gas exchange</span></div>
+          <div class="label-row"><span class="label-num">9.</span><div class="label-drop-zone" onclick="fillZone(this,'resp')" data-answer="Pleural Membrane">Drop / click to fill</div><span class="label-hint">— Fluid-filled; surrounds lungs; reduces friction</span></div>
+          <div class="label-row"><span class="label-num">10.</span><div class="label-drop-zone" onclick="fillZone(this,'resp')" data-answer="Diaphragm">Drop / click to fill</div><span class="label-hint">— Dome muscle; main breathing muscle</span></div>
+        </div>
+        <div class="diagram-actions">
+          <button class="btn btn-primary" onclick="checkDiagram('resp')">✓ Check Answers</button>
+          <button class="btn btn-secondary" onclick="resetDiagram('resp')">↺ Reset</button>
+          <button class="btn btn-success" onclick="revealDiagram('resp')">👁 Reveal All</button>
+        </div>
+        <div id="result-resp" style="margin-top:12px;font-weight:600;"></div>
+      </div>
+
+      <!-- BREATHING MECHANISM -->
+      <div class="diagram-wrapper" id="diag-breath">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;">
+          <div style="font-size:0.875rem;color:var(--muted);margin-bottom:12px;">Click a term, then click a blank:</div>
+          <div class="term-bank" id="bank-breath">
+            <div class="term-chip" onclick="selectTerm(this,'breath')">contracts</div>
+            <div class="term-chip" onclick="selectTerm(this,'breath')">relaxes</div>
+            <div class="term-chip" onclick="selectTerm(this,'breath')">increases</div>
+            <div class="term-chip" onclick="selectTerm(this,'breath')">decreases</div>
+            <div class="term-chip" onclick="selectTerm(this,'breath')">upward and outward</div>
+            <div class="term-chip" onclick="selectTerm(this,'breath')">downward and inward</div>
+            <div class="term-chip" onclick="selectTerm(this,'breath')">flows in</div>
+            <div class="term-chip" onclick="selectTerm(this,'breath')">pushed out</div>
+          </div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;">
+          <div style="font-weight:700;color:var(--accent);margin-bottom:12px;">INHALATION:</div>
+          <div class="diagram-labels">
+            <div class="label-row"><span class="label-num">1.</span><div class="label-drop-zone" onclick="fillZone(this,'breath')" data-answer="contracts">Click to fill</div><span class="label-hint">— Diaphragm ___</span></div>
+            <div class="label-row"><span class="label-num">2.</span><div class="label-drop-zone" onclick="fillZone(this,'breath')" data-answer="upward and outward">Click to fill</div><span class="label-hint">— Ribcage moves ___</span></div>
+            <div class="label-row"><span class="label-num">3.</span><div class="label-drop-zone" onclick="fillZone(this,'breath')" data-answer="increases">Click to fill</div><span class="label-hint">— Chest volume ___</span></div>
+            <div class="label-row"><span class="label-num">4.</span><div class="label-drop-zone" onclick="fillZone(this,'breath')" data-answer="decreases">Click to fill</div><span class="label-hint">— Pressure ___</span></div>
+            <div class="label-row"><span class="label-num">5.</span><div class="label-drop-zone" onclick="fillZone(this,'breath')" data-answer="flows in">Click to fill</div><span class="label-hint">— Air ___</span></div>
+          </div>
+          <div style="font-weight:700;color:var(--accent2);margin:16px 0 12px;">EXHALATION:</div>
+          <div class="diagram-labels">
+            <div class="label-row"><span class="label-num">6.</span><div class="label-drop-zone" onclick="fillZone(this,'breath')" data-answer="relaxes">Click to fill</div><span class="label-hint">— Diaphragm ___</span></div>
+            <div class="label-row"><span class="label-num">7.</span><div class="label-drop-zone" onclick="fillZone(this,'breath')" data-answer="downward and inward">Click to fill</div><span class="label-hint">— Ribcage moves ___</span></div>
+            <div class="label-row"><span class="label-num">8.</span><div class="label-drop-zone" onclick="fillZone(this,'breath')" data-answer="pushed out">Click to fill</div><span class="label-hint">— Air is ___</span></div>
+          </div>
+        </div>
+        <div class="diagram-actions">
+          <button class="btn btn-primary" onclick="checkDiagram('breath')">✓ Check Answers</button>
+          <button class="btn btn-secondary" onclick="resetDiagram('breath')">↺ Reset</button>
+          <button class="btn btn-success" onclick="revealDiagram('breath')">👁 Reveal All</button>
+        </div>
+        <div id="result-breath" style="margin-top:12px;font-weight:600;"></div>
+      </div>
+
+      <!-- GAS EXCHANGE -->
+      <div class="diagram-wrapper" id="diag-gas">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;">
+          <div style="font-size:0.875rem;color:var(--muted);margin-bottom:12px;">Click a term, then click a blank:</div>
+          <div class="term-bank" id="bank-gas">
+            <div class="term-chip" onclick="selectTerm(this,'gas')">diffuses in</div>
+            <div class="term-chip" onclick="selectTerm(this,'gas')">hemoglobin</div>
+            <div class="term-chip" onclick="selectTerm(this,'gas')">deoxygenated</div>
+            <div class="term-chip" onclick="selectTerm(this,'gas')">bicarbonate ions</div>
+            <div class="term-chip" onclick="selectTerm(this,'gas')">higher</div>
+            <div class="term-chip" onclick="selectTerm(this,'gas')">lower</div>
+            <div class="term-chip" onclick="selectTerm(this,'gas')">diffuses out</div>
+            <div class="term-chip" onclick="selectTerm(this,'gas')">alveoli</div>
+          </div>
+        </div>
+        <div class="diagram-labels">
+          <div class="label-row"><span class="label-num">1.</span><div class="label-drop-zone" onclick="fillZone(this,'gas')" data-answer="higher">Click to fill</div><span class="label-hint">— O₂ concentration is ___ in lungs than blood</span></div>
+          <div class="label-row"><span class="label-num">2.</span><div class="label-drop-zone" onclick="fillZone(this,'gas')" data-answer="diffuses in">Click to fill</div><span class="label-hint">— O₂ ___ to the blood</span></div>
+          <div class="label-row"><span class="label-num">3.</span><div class="label-drop-zone" onclick="fillZone(this,'gas')" data-answer="hemoglobin">Click to fill</div><span class="label-hint">— Most O₂ binds to ___ in red blood cells</span></div>
+          <div class="label-row"><span class="label-num">4.</span><div class="label-drop-zone" onclick="fillZone(this,'gas')" data-answer="lower">Click to fill</div><span class="label-hint">— O₂ in cells is always ___ than in blood</span></div>
+          <div class="label-row"><span class="label-num">5.</span><div class="label-drop-zone" onclick="fillZone(this,'gas')" data-answer="deoxygenated">Click to fill</div><span class="label-hint">— Blood becomes ___ after giving O₂ to cells</span></div>
+          <div class="label-row"><span class="label-num">6.</span><div class="label-drop-zone" onclick="fillZone(this,'gas')" data-answer="bicarbonate ions">Click to fill</div><span class="label-hint">— Most CO₂ travels in plasma as ___</span></div>
+          <div class="label-row"><span class="label-num">7.</span><div class="label-drop-zone" onclick="fillZone(this,'gas')" data-answer="alveoli">Click to fill</div><span class="label-hint">— CO₂ is expelled into ___ and breathed out</span></div>
+          <div class="label-row"><span class="label-num">8.</span><div class="label-drop-zone" onclick="fillZone(this,'gas')" data-answer="diffuses out">Click to fill</div><span class="label-hint">— CO₂ ___ of blood into alveolar air</span></div>
+        </div>
+        <div class="diagram-actions">
+          <button class="btn btn-primary" onclick="checkDiagram('gas')">✓ Check Answers</button>
+          <button class="btn btn-secondary" onclick="resetDiagram('gas')">↺ Reset</button>
+          <button class="btn btn-success" onclick="revealDiagram('gas')">👁 Reveal All</button>
+        </div>
+        <div id="result-gas" style="margin-top:12px;font-weight:600;"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ QUIZ ═══ -->
+  <div class="section" id="quiz">
+    <div class="section-title">// Practice Quiz</div>
+    <div class="section-sub">25 questions covering all test material. Instant feedback on every answer!</div>
+
+    <div class="quiz-container">
+      <div id="quizCard" class="quiz-question-card">
+        <div class="q-number" id="qNumber">Question 1 of 25</div>
+        <div class="q-text" id="qText"></div>
+        <div class="q-options" id="qOptions"></div>
+        <div class="q-feedback" id="qFeedback"></div>
+      </div>
+
+      <div id="quizScore" class="quiz-score">
+        <div style="font-size:1.2rem;color:var(--muted);">Your Score</div>
+        <div class="score-number" id="scoreNum"></div>
+        <div id="scoreMsg" style="color:var(--muted);margin-bottom:20px;"></div>
+        <button class="btn btn-primary" onclick="restartQuiz()" style="margin:8px;">🔄 Retake Quiz</button>
+        <button class="btn btn-secondary" onclick="showSection('study')" style="margin:8px;">📖 Review Notes</button>
+      </div>
+
+      <div class="quiz-nav" id="quizNav">
+        <div style="color:var(--muted);font-size:0.875rem;" id="qStatus">Select an answer to continue</div>
+        <button class="btn btn-primary" onclick="nextQuestion()" id="nextQBtn" style="display:none;">Next Question →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DISORDERS TABLE ═══ -->
+  <div class="section" id="disorders">
+    <div class="section-title">// Disorders Reference</div>
+    <div class="section-sub">Complete table for all respiratory disorders — memorize symptoms, causes & treatments</div>
+
+    <h3 style="color:var(--accent3);margin-bottom:12px;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px;">⬆ Upper Respiratory</h3>
+    <table class="disorder-table">
+      <tr><th>Disorder</th><th>Symptoms</th><th>Cause</th><th>Treatment</th></tr>
+      <tr>
+        <td><span class="disorder-name">Tonsillitis<span class="disorder-type">Upper</span></span></td>
+        <td>Sore throat, difficulty swallowing, swollen tonsils, fever, bad breath</td>
+        <td>Bacterial (Streptococcus) or viral infection of the tonsils</td>
+        <td>Antibiotics (bacterial); rest/fluids (viral); tonsillectomy if recurring</td>
+      </tr>
+      <tr>
+        <td><span class="disorder-name">Laryngitis<span class="disorder-type">Upper ★</span></span></td>
+        <td>Loss of voice/hoarseness, dry sore throat, irritating dry cough, fever</td>
+        <td>Viral infection (most common); bacterial; overstraining voice; acid reflux; smoke</td>
+        <td>REST voice completely (no whispering); stay hydrated; steam; antibiotics if bacterial; resolves 1–2 wks</td>
+      </tr>
+    </table>
+
+    <h3 style="color:var(--accent2);margin-bottom:12px;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px;margin-top:20px;">⬇ Lower Respiratory</h3>
+    <table class="disorder-table">
+      <tr><th>Disorder</th><th>Symptoms</th><th>Cause</th><th>Treatment</th></tr>
+      <tr>
+        <td><span class="disorder-name">Pneumonia<span class="disorder-type">Lower</span></span></td>
+        <td>Fever, chills, productive cough, chest pain, difficulty breathing</td>
+        <td>Bacterial/viral/fungal infection — alveoli fill with fluid/pus</td>
+        <td>Antibiotics (bacterial); antivirals; rest; oxygen therapy if severe</td>
+      </tr>
+      <tr>
+        <td><span class="disorder-name">Bronchitis<span class="disorder-type">Lower</span></span></td>
+        <td>Persistent cough with mucus, wheezing, chest discomfort, fatigue</td>
+        <td>Acute: viral/bacterial. Chronic: smoking/irritation</td>
+        <td>Acute: rest, fluids. Chronic: quit smoking, inhalers, bronchodilators</td>
+      </tr>
+      <tr>
+        <td><span class="disorder-name">Asthma<span class="disorder-type">Lower ★</span></span></td>
+        <td>Wheezing, shortness of breath, chest tightness, nighttime cough</td>
+        <td>Bronchiole spasm + excess mucus triggered by allergens, exercise, cold air, stress</td>
+        <td>Reliever inhaler (Ventolin/bronchodilator); preventer (corticosteroids); avoid triggers; epi for severe</td>
+      </tr>
+      <tr>
+        <td><span class="disorder-name">Emphysema<span class="disorder-type">Lower</span></span></td>
+        <td>Shortness of breath, barrel chest, chronic cough, reduced exercise tolerance</td>
+        <td>Alveoli walls destroyed → less surface area. Primary cause: SMOKING</td>
+        <td>Incurable — quit smoking, bronchodilators, O₂ therapy, lung reduction surgery</td>
+      </tr>
+      <tr>
+        <td><span class="disorder-name">Cystic Fibrosis<span class="disorder-type">Lower</span></span></td>
+        <td>Thick sticky mucus, chronic lung infections, difficulty breathing, digestive problems</td>
+        <td>Genetic mutation (CFTR gene) → abnormal Cl⁻ transport → thick mucus</td>
+        <td>Chest physiotherapy; antibiotics; CFTR modulators (Trikafta); lung transplant</td>
+      </tr>
+      <tr>
+        <td><span class="disorder-name">Lung Cancer<span class="disorder-type">Lower</span></span></td>
+        <td>Persistent cough, coughing blood, chest pain, weight loss, fatigue</td>
+        <td>Uncontrolled cell growth; primary cause: SMOKING (carcinogens damage DNA)</td>
+        <td>Surgery; radiation; chemotherapy; targeted/immunotherapy</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ═══ STUDY PLAN ═══ -->
+  <div class="section" id="plan">
+    <div class="section-title">// 30-Minute Study Plan</div>
+    <div class="section-sub">Your optimized plan for maximum retention before the test. Check off each step as you complete it!</div>
+
+    <div class="alert-box">
+      <h3>⚡ Strategy: Active Recall > Re-reading</h3>
+      <p>Don't just read — test yourself constantly. Every time you actively retrieve information, you strengthen that memory. Use the flashcards and quiz after each reading block. This is the science-backed way to get to 100%.</p>
+    </div>
+
+    <div class="plan-grid">
+      <div class="plan-card">
+        <h3>🔥 SESSION 1 — Round 1 (30 min)</h3>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div><strong>0–5 min:</strong> Read "Types of Respiration" card + "Path Air Takes" card in Study Notes</div>
+        </div>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div><strong>5–10 min:</strong> Flashcards — do cards 1–10. Don't peek until you've tried!</div>
+        </div>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div><strong>10–15 min:</strong> Label Diagram: Respiratory System — no peeking at hints first!</div>
+        </div>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div><strong>15–22 min:</strong> Read Breathing Mechanism + Gas Exchange cards. Say it out loud.</div>
+        </div>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div><strong>22–30 min:</strong> Label Diagrams: Breathing Mechanism + Gas Exchange</div>
+        </div>
+      </div>
+
+      <div class="plan-card">
+        <h3>⏸ BREAK — 30 min</h3>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div>Take a proper break — walk, drink water, eat. Your brain consolidates memory during rest.</div>
+        </div>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div>Before break: close eyes and mentally recite the path air takes from nose to alveoli</div>
+        </div>
+      </div>
+
+      <div class="plan-card">
+        <h3>🔥 SESSION 2 — Round 2 (30 min)</h3>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div><strong>0–8 min:</strong> ASTHMA card + LARYNGITIS card — can you say all 3 parts (symptoms/cause/treatment) without looking?</div>
+        </div>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div><strong>8–14 min:</strong> Flashcards 11–20. Focus hard on ones you get wrong.</div>
+        </div>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div><strong>14–20 min:</strong> Disorders Table — cover the right columns and quiz yourself on each disorder</div>
+        </div>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div><strong>20–30 min:</strong> Other Organisms card — say aloud how each one exchanges gases</div>
+        </div>
+      </div>
+
+      <div class="plan-card">
+        <h3>⏸ BREAK — 30 min</h3>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div>Proper rest again. Try to teach the material to someone/something (explain it out loud)</div>
+        </div>
+      </div>
+
+      <div class="plan-card">
+        <h3>🏁 SESSION 3 — Final Drill (30 min)</h3>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div><strong>0–10 min:</strong> Full 25-question Practice Quiz. Aim for 22+/25.</div>
+        </div>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div><strong>10–18 min:</strong> Flashcards 21–30 + Shuffle and do random 10</div>
+        </div>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div><strong>18–24 min:</strong> Re-do all 3 labeling diagrams from memory — fastest time wins!</div>
+        </div>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div><strong>24–30 min:</strong> Final review of Asthma & Laryngitis only (your teacher flagged these)</div>
+        </div>
+      </div>
+
+      <div class="plan-card">
+        <h3>✅ High-Priority Topics</h3>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div>Asthma — all 3 parts memorized</div>
+        </div>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div>Laryngitis — all 3 parts memorized</div>
+        </div>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div>4 types of respiration (ventilation, external, internal, cellular)</div>
+        </div>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div>Path air takes (nasal cavity → alveoli, in order)</div>
+        </div>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div>How inhalation + exhalation work (diaphragm/pressure)</div>
+        </div>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div>O₂ and CO₂ gas exchange pathway</div>
+        </div>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div>Other organisms (worms/insects/fish/frogs)</div>
+        </div>
+        <div class="plan-item">
+          <div class="plan-check" onclick="toggleCheck(this)"></div>
+          <div>Emphysema vs Asthma vs Cystic Fibrosis (key differences)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ── TIMER ──────────────────────────────────────────────────────────────────
+let timerSeconds = 30 * 60;
+let timerRunning = false;
+let timerInterval = null;
+
+function toggleTimer() {
+  timerRunning = !timerRunning;
+  document.getElementById('timerBtn').textContent = timerRunning ? 'PAUSE' : 'START';
+  if (timerRunning) {
+    timerInterval = setInterval(() => {
+      timerSeconds--;
+      if (timerSeconds <= 0) {
+        timerSeconds = 0;
+        timerRunning = false;
+        clearInterval(timerInterval);
+        document.getElementById('timerBtn').textContent = 'DONE!';
+        alert('⏰ 30 minutes up! Time for a break — you earned it!');
+      }
+      updateTimerDisplay();
+    }, 1000);
+  } else {
+    clearInterval(timerInterval);
+  }
+}
+
+function resetTimer() {
+  timerSeconds = 30 * 60;
+  timerRunning = false;
+  clearInterval(timerInterval);
+  document.getElementById('timerBtn').textContent = 'START';
+  updateTimerDisplay();
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+  const s = (timerSeconds % 60).toString().padStart(2, '0');
+  document.getElementById('timerDisplay').textContent = `${m}:${s}`;
+  const el = document.getElementById('timerDisplay');
+  el.style.color = timerSeconds < 300 ? '#ef4444' : 'var(--accent)';
+}
+
+// ── NAVIGATION ──────────────────────────────────────────────────────────────
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    if (b.getAttribute('onclick').includes(`'${id}'`)) b.classList.add('active');
+  });
+  if (id === 'flashcards') renderFlashcard();
+  if (id === 'quiz') initQuiz();
+}
+
+// ── FLASHCARDS ──────────────────────────────────────────────────────────────
+const flashcards = [
+  {q: "What are the 4 types of respiration?", a: "1. Ventilation (Breathing) — moving air in/out\n2. External Respiration — gas exchange at alveoli (air ↔ blood)\n3. Internal Respiration — gas exchange at cells (blood ↔ cells)\n4. Cellular Respiration — O₂ + nutrients → energy + CO₂ + H₂O"},
+  {q: "What is the path air takes from nose to gas exchange? (8 structures in order)", a: "Nasal Cavity → Pharynx → Epiglottis → Larynx → Trachea → Bronchi → Bronchioles → Alveoli"},
+  {q: "What happens during inhalation? (diaphragm, ribs, pressure)", a: "Diaphragm contracts (flattens ↓) + Intercostals contract (ribs UP & OUT) → Volume increases → Pressure DECREASES → Air flows IN"},
+  {q: "What happens during exhalation?", a: "Diaphragm relaxes (domes ↑) + Intercostals relax (ribs DOWN & IN) → Volume decreases → Pressure INCREASES → Air pushed OUT"},
+  {q: "Where does gas exchange occur? Why are alveoli good for this?", a: "At the ALVEOLI. They have: 1-cell-thick walls, moist surface, massive surface area (40× skin), 150 million per lung, surrounded by capillaries"},
+  {q: "How is O₂ transported in blood?", a: "Most O₂ binds to HEMOGLOBIN protein in red blood cells (RBCs), forming oxyhemoglobin. Small amount dissolves in plasma."},
+  {q: "How is CO₂ transported in blood?", a: "Most CO₂ reacts with H₂O in RBC → forms bicarbonate ions (HCO₃⁻) carried in plasma. Some binds hemoglobin. Small amount dissolved in plasma."},
+  {q: "What is External Respiration?", a: "Exchange of gases between the ATMOSPHERE and the BLOOD — occurs at the alveoli. O₂ moves from air into blood; CO₂ moves from blood into air."},
+  {q: "What is Internal Respiration?", a: "Exchange of gases between the BLOOD and BODY CELLS. O₂ diffuses from blood into cells; CO₂ diffuses from cells into blood."},
+  {q: "What causes gases to diffuse in the directions they do?", a: "CONCENTRATION GRADIENTS — gases always diffuse from HIGH concentration to LOW concentration (passive diffusion, no energy needed)."},
+  {q: "What is the function of the epiglottis?", a: "A flap at the top of the trachea that prevents food/liquid from entering the trachea and lungs during swallowing. The cough reflex removes anything that gets past."},
+  {q: "What is the function of the pleural membrane?", a: "Thin fluid-filled membrane surrounding each lung. Reduces FRICTION between lungs and chest wall during breathing movements."},
+  {q: "Define LARYNGITIS — symptoms, cause, treatment", a: "Inflammation of larynx (voice box) → vocal cords swell.\nSymptoms: loss of voice, hoarseness, sore dry throat, dry cough\nCause: viral (most common), bacterial, voice strain\nTreatment: REST voice (no whispering!), hydrate, steam, antibiotics if bacterial"},
+  {q: "Define ASTHMA — symptoms, cause, treatment", a: "Chronic disorder — bronchioles constrict + excess mucus.\nSymptoms: wheezing, shortness of breath, chest tightness, cough\nCause: triggers (allergens, exercise, cold air, stress)\nTreatment: Ventolin inhaler (bronchodilator); corticosteroid inhaler; avoid triggers"},
+  {q: "What is EMPHYSEMA? What causes it?", a: "Alveoli walls break down → enlarged, less elastic air sacs → reduced surface area for gas exchange → can't breathe properly.\nPrimary cause: SMOKING\nIncurable — treat with bronchodilators, O₂ therapy"},
+  {q: "How do INSECTS exchange gases?", a: "Through SPIRACLES (holes along body) connected to TRACHEAE (tubes). Oxygen travels directly to organs/cells. NO LUNGS."},
+  {q: "How do FISH exchange gases?", a: "Through GILLS. Water flows over gill filaments rich in capillaries. O₂ diffuses from water → blood; CO₂ diffuses from blood → water. Countercurrent exchange maximizes efficiency."},
+  {q: "How do FROGS exchange gases?", a: "Adults use both LUNGS and MOIST SKIN (cutaneous respiration). Tadpoles use gills. Frogs must keep skin moist or they suffocate."},
+  {q: "How do WORMS exchange gases?", a: "Through their MOIST SKIN (cutaneous respiration). O₂ and CO₂ diffuse directly through skin surface. Must stay moist!"},
+  {q: "What is the BRONCHIOLE ESCALATOR?", a: "Goblet cells produce mucus that traps bacteria/dust/pollen. Tiny CILIA continuously sweep this mucus (and trapped debris) up and out of the lungs. Smoking destroys cilia!"},
+  {q: "What is CYSTIC FIBROSIS?", a: "Genetic disorder — mutation in CFTR gene → abnormal chloride ion transport → abnormally thick sticky mucus in lungs and digestive system → chronic infections.\nTreatment: chest physiotherapy, antibiotics, CFTR modulators (Trikafta)"},
+  {q: "What are GOBLET CELLS?", a: "Mucus-producing cells that line the trachea, bronchi, and bronchioles. Their mucus traps foreign particles (bacteria, dust, pollen) which are then swept out by cilia."},
+  {q: "What is the difference between bronchi and bronchioles?", a: "BRONCHI: larger airways directly from trachea, have cartilage rings for support, 2 (left and right).\nBRONCHIOLES: smaller branches of bronchi, no cartilage, have smooth muscle walls that can dilate/constrict to control airflow."},
+  {q: "What are the FUNCTIONS of the respiratory system?", a: "1. Deliver O₂ to cells for cellular respiration\n2. Remove CO₂ waste from body\n3. Maintain blood pH\n4. Produce sound (larynx/vocal cords)\n5. Filter, warm, moisten incoming air"},
+  {q: "What is PNEUMONIA?", a: "Infection of lung tissue (bacterial, viral, or fungal) that causes alveoli to fill with fluid/pus.\nSymptoms: fever, chills, productive cough, chest pain, difficulty breathing.\nTreatment: antibiotics (bacterial), antivirals, rest, O₂ therapy."},
+  {q: "CO₂ transport — what is the chemical reaction in RBCs?", a: "CO₂ + H₂O → H₂CO₃ (carbonic acid) → H⁺ + HCO₃⁻ (bicarbonate ions)\nAt lungs: reaction reverses — HCO₃⁻ + H⁺ → CO₂ + H₂O → CO₂ exhaled"},
+  {q: "What is the LARYNX? What does it do?", a: "The VOICE BOX — located below epiglottis in the trachea. Contains vocal cords (2 thin elastic bands). Incoming air causes cords to vibrate, producing sound. Protected by Adam's apple cartilage."},
+  {q: "What is the TRACHEA and how is it structured?", a: "The WINDPIPE — carries air between pharynx and bronchi. Supported by C-shaped CARTILAGE RINGS on outside (keep it open). Inside lined with ciliated mucus-secreting cells."},
+  {q: "Why is SMOKING so damaging to the respiratory system?", a: "Smoking: destroys cilia (bronchiole escalator fails → debris accumulates), damages alveolar walls (→ emphysema), carcinogens damage DNA (→ lung cancer), causes chronic bronchitis, increases mucus production"},
+  {q: "Surface area of alveoli vs. skin — how do they compare?", a: "The combined surface area of alveoli in both lungs is equal to approximately 40 TIMES the surface area of your entire skin! This is why they are so efficient at gas exchange."},
+];
+
+let currentCard = 0;
+let isFlipped = false;
+let cardOrder = [...Array(flashcards.length).keys()];
+
+function renderFlashcard() {
+  const card = flashcards[cardOrder[currentCard]];
+  document.getElementById('fcQuestion').textContent = card.q;
+  document.getElementById('fcAnswer').textContent = card.a;
+  document.getElementById('fcCount').textContent = `Card ${currentCard + 1} of ${flashcards.length}`;
+  document.getElementById('fcProgress').style.width = `${((currentCard + 1) / flashcards.length) * 100}%`;
+  const fc = document.getElementById('flashcard');
+  fc.classList.remove('flipped');
+  isFlipped = false;
+}
+
+function flipCard() {
+  document.getElementById('flashcard').classList.toggle('flipped');
+  isFlipped = !isFlipped;
+}
+
+function nextCard() {
+  if (currentCard < flashcards.length - 1) {
+    currentCard++;
+    renderFlashcard();
+  } else {
+    alert('🎉 You made it through all 30 cards! Try shuffling for another round.');
+  }
+}
+
+function prevCard() {
+  if (currentCard > 0) {
+    currentCard--;
+    renderFlashcard();
+  }
+}
+
+function shuffleCards() {
+  for (let i = cardOrder.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [cardOrder[i], cardOrder[j]] = [cardOrder[j], cardOrder[i]];
+  }
+  currentCard = 0;
+  renderFlashcard();
+}
+
+// ── DIAGRAM LABELING ──────────────────────────────────────────────────────
+let selectedTerm = null;
+let selectedDiagram = null;
+
+function selectTerm(el, diag) {
+  // Deselect previous
+  document.querySelectorAll('.term-chip.selected-term').forEach(c => {
+    c.classList.remove('selected-term');
+    c.style.background = '';
+    c.style.color = '';
+    c.style.borderColor = '';
+  });
+  selectedTerm = el.textContent.trim();
+  selectedDiagram = diag;
+  el.classList.add('selected-term');
+  el.style.background = 'rgba(167,139,250,0.3)';
+  el.style.color = 'var(--accent4)';
+  el.style.borderColor = 'var(--accent4)';
+}
+
+function fillZone(zone, diag) {
+  if (!selectedTerm || selectedDiagram !== diag) return;
+  if (zone.classList.contains('correct') || zone.classList.contains('incorrect')) return;
+  zone.textContent = selectedTerm;
+  zone.classList.add('filled');
+  zone.classList.remove('correct','incorrect');
+  zone.dataset.filled = selectedTerm;
+  
+  // Mark chip as used (light)
+  document.querySelectorAll(`#bank-${diag} .term-chip`).forEach(c => {
+    if (c.textContent.trim() === selectedTerm) c.style.opacity = '0.4';
+  });
+
+  // Clear selection
+  document.querySelectorAll('.term-chip.selected-term').forEach(c => {
+    c.classList.remove('selected-term');
+    c.style.background = '';
+    c.style.color = '';
+    c.style.borderColor = '';
+  });
+  selectedTerm = null;
+  selectedDiagram = null;
+}
+
+function checkDiagram(diag) {
+  let correct = 0, total = 0;
+  document.querySelectorAll(`#diag-${diag} .label-drop-zone`).forEach(zone => {
+    total++;
+    const answer = zone.dataset.answer;
+    const filled = zone.dataset.filled || '';
+    if (filled.toLowerCase() === answer.toLowerCase()) {
+      zone.classList.add('correct');
+      zone.classList.remove('incorrect', 'filled');
+      correct++;
+    } else if (filled) {
+      zone.classList.add('incorrect');
+      zone.classList.remove('correct', 'filled');
+    }
+  });
+  const result = document.getElementById(`result-${diag}`);
+  result.textContent = `${correct}/${total} correct`;
+  result.style.color = correct === total ? 'var(--accent2)' : correct > total / 2 ? 'var(--accent3)' : 'var(--danger)';
+}
+
+function resetDiagram(diag) {
+  document.querySelectorAll(`#diag-${diag} .label-drop-zone`).forEach(zone => {
+    zone.textContent = 'Drop / click to fill';
+    zone.classList.remove('correct','incorrect','filled');
+    delete zone.dataset.filled;
+  });
+  document.querySelectorAll(`#bank-${diag} .term-chip`).forEach(c => {
+    c.style.opacity = '';
+    c.style.background = '';
+    c.style.color = '';
+    c.style.borderColor = '';
+    c.classList.remove('selected-term');
+  });
+  document.getElementById(`result-${diag}`).textContent = '';
+  selectedTerm = null;
+}
+
+function revealDiagram(diag) {
+  document.querySelectorAll(`#diag-${diag} .label-drop-zone`).forEach(zone => {
+    zone.textContent = zone.dataset.answer;
+    zone.classList.add('correct');
+    zone.classList.remove('incorrect','filled');
+  });
+  document.getElementById(`result-${diag}`).textContent = 'Answers revealed — study these!';
+  document.getElementById(`result-${diag}`).style.color = 'var(--accent)';
+}
+
+function showDiagram(id) {
+  document.querySelectorAll('.diagram-wrapper').forEach(d => d.classList.remove('active'));
+  document.querySelectorAll('.diag-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`diag-${id}`).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── QUIZ ──────────────────────────────────────────────────────────────────
+const quizData = [
+  {q: "What is the correct order for air to travel from nose to gas exchange?", opts: ["Nasal cavity → Trachea → Pharynx → Larynx → Bronchi → Bronchioles → Alveoli","Nasal cavity → Pharynx → Larynx → Trachea → Bronchi → Bronchioles → Alveoli","Nasal cavity → Larynx → Pharynx → Trachea → Alveoli → Bronchioles → Bronchi","Mouth → Trachea → Pharynx → Bronchi → Larynx → Bronchioles → Alveoli"], correct: 1, explain: "Correct path: Nasal Cavity → Pharynx (throat) → Epiglottis → Larynx (voice box) → Trachea (windpipe) → Bronchi → Bronchioles → Alveoli"},
+  {q: "What happens to the diaphragm during INHALATION?", opts: ["It relaxes and domes upward","It contracts and flattens downward","It remains stationary","It moves upward and inward"], correct: 1, explain: "During inhalation, the diaphragm CONTRACTS and FLATTENS DOWNWARD, increasing chest volume, decreasing pressure, causing air to flow in."},
+  {q: "Where does EXTERNAL respiration take place?", opts: ["In the body cells and tissues","At the alveoli — between air and blood","In the trachea","In the mitochondria"], correct: 1, explain: "External respiration = exchange of gases between the ATMOSPHERE and the BLOOD, which occurs at the ALVEOLI."},
+  {q: "Which is a PRIMARY symptom of LARYNGITIS?", opts: ["Barrel chest","Wheezing","Loss of voice / hoarseness","Thick sticky mucus"], correct: 2, explain: "Laryngitis involves inflammation of the larynx, causing the vocal cords to swell — the hallmark symptom is LOSS OF VOICE or hoarseness."},
+  {q: "What is the MOST COMMON cause of Laryngitis?", opts: ["Bacterial infection","Overstraining the voice","Viral infection","Acid reflux"], correct: 2, explain: "Viral infection is the MOST COMMON cause of laryngitis (same viruses as common cold/flu). Treatment = rest voice, stay hydrated."},
+  {q: "In ASTHMA, what happens to the bronchioles?", opts: ["They become infected with bacteria","They fill with fluid and collapse","They spasm/constrict and produce excess mucus, blocking airflow","They lose elasticity and stretch permanently"], correct: 2, explain: "In asthma, smooth muscles around bronchioles SPASM and CONSTRICT, and excess mucus is produced — both narrow the airway, trapping air and making exhalation difficult."},
+  {q: "How is the MAJORITY of oxygen transported in blood?", opts: ["Dissolved in plasma","Bound to hemoglobin in red blood cells","As bicarbonate ions","Bound to white blood cells"], correct: 1, explain: "Most O₂ binds to HEMOGLOBIN (a protein in RBCs), forming oxyhemoglobin. Only a small amount dissolves in plasma."},
+  {q: "How is the MAJORITY of CO₂ transported in blood?", opts: ["Dissolved in plasma","Bound to hemoglobin","As bicarbonate ions (HCO₃⁻) in plasma","As carbonic acid"], correct: 2, explain: "Most CO₂ reacts with water in RBCs to form bicarbonate ions (HCO₃⁻), which travel in the plasma to the lungs where the reaction reverses."},
+  {q: "Why does O₂ diffuse from the blood into body cells?", opts: ["Cells actively pump O₂ in using energy","O₂ concentration in cells is LOWER than in blood (cells always using O₂)","O₂ is repelled by hemoglobin in the capillaries","Blood pressure forces O₂ into cells"], correct: 1, explain: "Diffusion follows concentration gradients. Cells constantly use O₂ → O₂ concentration in cells is ALWAYS lower than in blood → O₂ diffuses from blood into cells."},
+  {q: "How do INSECTS exchange gases?", opts: ["Through gills on their abdomen","Through moist skin","Through a tracheal system with spiracles","Through simple lungs"], correct: 2, explain: "Insects have SPIRACLES (openings along their body) connected to TRACHEAE (tubes) that carry O₂ directly to organs and cells. They do NOT have lungs."},
+  {q: "What is EMPHYSEMA primarily caused by?", opts: ["Genetic mutation","Viral infection","Bacterial infection","Smoking"], correct: 3, explain: "SMOKING is the primary cause of emphysema. Chemicals in cigarette smoke destroy alveolar walls, leaving fewer, larger, less elastic air sacs with reduced surface area."},
+  {q: "The surface area of the alveoli in both lungs is approximately:", opts: ["Equal to the surface area of your skin","5 times the surface area of your skin","40 times the surface area of your skin","Same as a tennis court"], correct: 2, explain: "The alveoli have a combined surface area equal to 40 TIMES the surface area of your skin, which allows for enormous amounts of gas exchange."},
+  {q: "What is the function of the PLEURAL MEMBRANE?", opts: ["To produce mucus for the trachea","To filter air entering the nasal cavity","To reduce friction between lungs and chest wall during breathing","To carry CO₂ out of the body"], correct: 2, explain: "The pleural membrane is a thin fluid-filled membrane surrounding each lung that reduces FRICTION between the lungs and chest wall during inhalation and exhalation."},
+  {q: "CYSTIC FIBROSIS is primarily caused by:", opts: ["Long-term smoking","Viral infection of the alveoli","A genetic mutation affecting chloride ion transport","Overproduction of CO₂ in cells"], correct: 2, explain: "Cystic Fibrosis is caused by a mutation in the CFTR gene, which leads to abnormal chloride ion transport, resulting in abnormally THICK STICKY MUCUS in the lungs and other organs."},
+  {q: "During exhalation, chest volume:", opts: ["Increases, causing pressure to decrease","Decreases, causing pressure to increase","Stays the same; only muscle tension changes","Increases, causing pressure to increase"], correct: 1, explain: "During exhalation: diaphragm relaxes → chest volume DECREASES → pressure INCREASES above atmospheric pressure → air is pushed OUT."},
+  {q: "What does the EPIGLOTTIS do?", opts: ["Produces vocal sounds","Filters bacteria from incoming air","Prevents food from entering the trachea","Exchanges gases between air and blood"], correct: 2, explain: "The epiglottis is a flap at the top of the trachea that covers the airway during swallowing, preventing food/liquid from entering the trachea and lungs. Cough reflex removes anything that gets through."},
+  {q: "How do FROGS exchange gases?", opts: ["Only through lungs","Only through gills","Through gills as adults and lungs as tadpoles","Through lungs AND moist skin (adults), gills as tadpoles"], correct: 3, explain: "Adult frogs use both SIMPLE LUNGS and MOIST SKIN (cutaneous respiration). As tadpoles, they use GILLS. Frogs must keep their skin moist to breathe through it."},
+  {q: "The BRONCHIOLE ESCALATOR refers to:", opts: ["The movement of air through progressively smaller tubes","Cilia sweeping mucus (with trapped debris) up and out of lungs","The pressure gradient that moves air into alveoli","Countercurrent exchange in the alveoli"], correct: 1, explain: "The BRONCHIOLE ESCALATOR: goblet cells produce mucus that traps bacteria/dust/pollen. Cilia constantly sweep this material up toward the pharynx where it's swallowed. Smoking destroys cilia!"},
+  {q: "Which of these correctly describes INTERNAL respiration?", opts: ["Exchange of gases between atmosphere and alveoli","Gas exchange at the alveolar surface between air and blood","Exchange of gases between the blood and body cells","Conversion of O₂ to CO₂ in the mitochondria"], correct: 2, explain: "Internal Respiration = exchange of gases between BLOOD and BODY CELLS. O₂ diffuses from blood into cells; CO₂ diffuses from cells into blood."},
+  {q: "What is the treatment for Asthma during an attack?", opts: ["Antibiotics","Rest voice and drink water","Bronchodilator inhaler (e.g., Ventolin) to relax bronchiole muscles","Chest physiotherapy to break up mucus"], correct: 2, explain: "During an asthma attack, a BRONCHODILATOR inhaler (like Ventolin/salbutamol) quickly relaxes the smooth muscles around bronchioles, opening the airways. Corticosteroid inhalers prevent attacks long-term."},
+  {q: "PNEUMONIA is characterized by:", opts: ["Destruction of alveolar walls","Constriction of bronchioles","Alveoli filling with fluid/pus from infection","Genetic defect causing thick mucus"], correct: 2, explain: "Pneumonia is an infection (bacterial, viral, or fungal) that causes the ALVEOLI to fill with FLUID or PUS, severely reducing gas exchange. Symptoms: fever, chills, productive cough, chest pain."},
+  {q: "How do EARTHWORMS exchange gases?", opts: ["Through gills","Through spiracles and tracheae","Through moist skin (cutaneous respiration)","Through simple lungs"], correct: 2, explain: "Worms use CUTANEOUS RESPIRATION — gases diffuse directly through their moist skin. They have no lungs, gills, or tracheal system. They MUST stay moist or they will suffocate."},
+  {q: "What process occurs in the MITOCHONDRIA during cellular respiration?", opts: ["Gas exchange between alveoli and blood","Oxygen + Nutrients → Energy + CO₂ + H₂O","Diffusion of O₂ from blood into cells","Conversion of CO₂ to bicarbonate ions"], correct: 1, explain: "CELLULAR RESPIRATION occurs in the cytoplasm and mitochondria: Oxygen + Nutrients → Energy + Carbon Dioxide + Water. This is why cells need O₂ and why we breathe out CO₂."},
+  {q: "A treatment for LARYNGITIS includes:", opts: ["Bronchodilator inhaler","Rest the voice completely — including no whispering","CFTR modulator drugs","Chest physiotherapy"], correct: 1, explain: "Laryngitis treatment: REST the voice COMPLETELY (even whispering strains the vocal cords!), stay hydrated, steam inhalation, antibiotics only if bacterial. Usually resolves in 1-2 weeks."},
+  {q: "What is the role of GOBLET CELLS?", opts: ["They produce hemoglobin for red blood cells","They produce mucus to trap bacteria, dust, and pollen in the airways","They are the site of gas exchange","They control the opening and closing of spiracles"], correct: 1, explain: "GOBLET CELLS line the trachea, bronchi, and bronchioles. They produce MUCUS that traps foreign particles (bacteria, dust, pollen). Cilia then sweep this mucus (and trapped particles) out of the lungs."},
+];
+
+let currentQuestion = 0;
+let score = 0;
+let answered = false;
+
+function initQuiz() {
+  currentQuestion = 0;
+  score = 0;
+  answered = false;
+  document.getElementById('quizCard').style.display = 'block';
+  document.getElementById('quizScore').style.display = 'none';
+  document.getElementById('quizNav').style.display = 'flex';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  answered = false;
+  const q = quizData[currentQuestion];
+  document.getElementById('qNumber').textContent = `Question ${currentQuestion + 1} of ${quizData.length}`;
+  document.getElementById('qText').textContent = q.q;
+  document.getElementById('qFeedback').style.display = 'none';
+  document.getElementById('nextQBtn').style.display = 'none';
+  document.getElementById('qStatus').textContent = 'Select an answer';
+
+  const opts = document.getElementById('qOptions');
+  opts.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'q-option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    opts.appendChild(btn);
+  });
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+  const q = quizData[currentQuestion];
+  const opts = document.querySelectorAll('.q-option');
+  opts.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    if (i === q.correct) btn.classList.add('correct');
+    if (i === idx && idx !== q.correct) btn.classList.add('incorrect');
+  });
+  
+  const fb = document.getElementById('qFeedback');
+  if (idx === q.correct) {
+    score++;
+    fb.className = 'q-feedback correct-fb';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'q-feedback incorrect-fb';
+    fb.textContent = '✗ Incorrect. ' + q.explain;
+  }
+  fb.style.display = 'block';
+  
+  document.getElementById('nextQBtn').style.display = 'block';
+  document.getElementById('qStatus').textContent = `Score so far: ${score}/${currentQuestion + 1}`;
+}
+
+function nextQuestion() {
+  currentQuestion++;
+  if (currentQuestion >= quizData.length) {
+    showScore();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showScore() {
+  document.getElementById('quizCard').style.display = 'none';
+  document.getElementById('quizNav').style.display = 'none';
+  document.getElementById('quizScore').style.display = 'block';
+  
+  const pct = Math.round((score / quizData.length) * 100);
+  const numEl = document.getElementById('scoreNum');
+  numEl.textContent = `${score}/${quizData.length} (${pct}%)`;
+  
+  const msgs = {
+    90: { cls: 'score-excellent', msg: '🏆 EXCELLENT! You\'re ready for this test. You clearly understand the material!' },
+    70: { cls: 'score-good', msg: '👍 Good job! Review the questions you got wrong, focusing on the feedback explanations.' },
+    50: { cls: 'score-needs-work', msg: '📚 Needs more work. Go back to Study Notes and Flashcards, then retake.' },
+    0: { cls: 'score-fail', msg: '💪 Keep at it! Spend 15 min on Study Notes, then try again.' },
+  };
+  
+  let msgObj = msgs[0];
+  for (const threshold of [90, 70, 50, 0]) {
+    if (pct >= threshold) { msgObj = msgs[threshold]; break; }
+  }
+  
+  numEl.className = `score-number ${msgObj.cls}`;
+  document.getElementById('scoreMsg').textContent = msgObj.msg;
+}
+
+function restartQuiz() {
+  initQuiz();
+}
+
+// ── STUDY PLAN CHECKBOXES ──────────────────────────────────────────────────
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+renderFlashcard();
+</script>
+</body>
+</html>
